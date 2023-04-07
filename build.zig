@@ -2,15 +2,9 @@ const std = @import("std");
 
 pub fn build(b: *std.build.Builder) void {
     const target = b.standardTargetOptions(.{});
-    // Standard release options allow the person running `zig build` to select
-    // between Debug, ReleaseSafe, ReleaseFast, and ReleaseSmall.
     const optimize = b.standardOptimizeOption(.{});
 
-    const exe = b.addExecutable(.{
-        .name = "chat",
-        .target = target,
-        .optimize = optimize,
-    });
+    const exe = b.addExecutable(.{ .name = "chat", .target = target, .optimize = optimize });
     exe.install();
     exe.linkLibC();
     exe.linkLibCpp();
