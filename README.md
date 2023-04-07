@@ -46,6 +46,13 @@ From here,
 - write leightweight zig bindings to provide a prompt and context, etc. to the
   model and run inference, probably with callbacks.
 
+## Linux only?
+
+Also, so far I have only tested this on Linux. Would be interesting to know if
+modifications are required for Windows and macOS. If so, the answers will all be
+`Makefile` of gpt4all.cpp 😊.
+
+
 ## Closing remarks
 
 I was unable to use the binary chat clients provided by GPT4All on my NixOS box:
