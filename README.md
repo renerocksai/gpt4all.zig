@@ -56,6 +56,9 @@ Also, so far I have only tested this on Linux. Would be interesting to know if
 modifications are required for Windows and macOS. If so, the answers will all be
 `Makefile` of gpt4all.cpp 😊.
 
+**Update**: Thanks to creative coder @guidoschmidt, we can now confirm it
+runs on macOS, too, without any hickups.
+
 
 ## Closing remarks
 
@@ -65,8 +68,9 @@ I was unable to use the binary chat clients provided by GPT4All on my NixOS box:
 gpt4all-lora-quantized-linux-x86: error while loading shared libraries: libstdc++.so.6: cannot open shared ob ject file: No such file or directory
 ```
 
-So I had to run `make` to create the executable for my system, which worked
-flawlessy. Congrats to Nomic.ai! 
+That was expected on NixOS, with dynamically linked executables. So I had to run
+`make` to create the executable for my system, which worked flawlessy. Congrats
+to Nomic.ai! 
 
 But with the idea of writing my own chat client in zig at some time in the
 future in mind, I began writing a `build.zig`. I really think that the
