@@ -10,6 +10,10 @@ Here it's running inside of NeoVim:
 
 ![](./2023-04-08_00-39.png)
 
+And here is how it runs on my machine (low quality GIF):
+
+![](./gpt4all.zig.GIF)
+
 # Try it yourself
 
 Here's how to get started with the CPU quantized GPT4All model checkpoint:
