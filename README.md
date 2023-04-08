@@ -22,7 +22,7 @@ Here's how to get started with the CPU quantized GPT4All model checkpoint:
 1. Download the `gpt4all-lora-quantized.bin` file from [Direct Link](https://the-eye.eu/public/AI/models/nomic-ai/gpt4all/gpt4all-lora-quantized.bin) or [[Torrent-Magnet]](https://tinyurl.com/gpt4all-lora-quantized).
 2. Clone this repository
 3. Compile with `zig build -Doptimize=ReleaseFast`
-4. Run with `./zig-out/bin/chat
+4. Run with `./zig-out/bin/chat`
 
 If the downloaded model file is located somewhere else, start with:
 
