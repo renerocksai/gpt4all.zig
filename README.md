@@ -19,12 +19,22 @@ And here is how it runs on my machine (low quality GIF):
 Here's how to get started with the CPU quantized GPT4All model checkpoint:
 
 0. Make sure you have Zig master installed. Download from [here](https://ziglang.org/download/)
-1. Download the `gpt4all-lora-quantized.bin` file from [Direct Link](https://the-eye.eu/public/AI/models/nomic-ai/gpt4all/gpt4all-lora-quantized.bin) or [[Torrent-Magnet]](https://tinyurl.com/gpt4all-lora-quantized).
-2. Clone this repository
+1. Optional: Download the `gpt4all-lora-quantized.bin` file from [Direct Link](https://the-eye.eu/public/AI/models/nomic-ai/gpt4all/gpt4all-lora-quantized.bin) or [[Torrent-Magnet]](https://tinyurl.com/gpt4all-lora-quantized).
+   
+2. Clone or download this repository
 3. Compile with `zig build -Doptimize=ReleaseFast`
 4. Run with `./zig-out/bin/chat
 
-If the downloaded model file is located somewhere else, start with:
+If you didn't download the model yourself, the download of the model is
+performed automatically:
+
+```shell
+$ ./zig-out/bin/chat 
+Model File does not exist, downloading model from: https://the-eye.eu/public/AI/models/nomic-ai/gpt4all/gpt4all-lora-quantized.bin
+Downloaded:   19 MB / 4017 MB   [  0%]
+```
+
+If you downloaded the model yourself and saved in a different location, start with:
 
 ```shell
 $ ./zig-out/bin/chat -m /path/to/model.bin
