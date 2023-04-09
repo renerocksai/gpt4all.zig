@@ -43,7 +43,8 @@ $ ./zig-out/bin/chat -m /path/to/model.bin
 This has the model download feature removed, that came with lots of
 dependencies. I haven't tested this code on Windows yet.
 
-**Please note**: This work merely adds a `build.zig` and is based on the excellent ones done by Nomic.ai:
+**Please note**: This work merely adds a `build.zig` and the automatic model
+download to the excellent work done by Nomic.ai:
 - [GPT4All](https://github.com/nomic-ai/gpt4all): Everything GPT4All
 - [gpt4all.cpp](https://github.com/zanussbaum/gpt4all.cpp): Source code of the
   chat client
