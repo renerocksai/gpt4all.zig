@@ -1,10 +1,10 @@
 const std = @import("std");
 
 // thanks to github.com/mattnite !!!
-const libcurl = @import("zig-libcurl/libcurl.zig");
-const mbedtls = @import("zig-libcurl/zig-mbedtls/mbedtls.zig");
-const zlib = @import("zig-libcurl/zig-zlib/zlib.zig");
-const libssh2 = @import("zig-libcurl/zig-libssh2/libssh2.zig");
+const libcurl = @import("src/zig-libcurl/libcurl.zig");
+const mbedtls = @import("src/zig-libcurl/zig-mbedtls/mbedtls.zig");
+const zlib = @import("src/zig-libcurl/zig-zlib/zlib.zig");
+const libssh2 = @import("src/zig-libcurl/zig-libssh2/libssh2.zig");
 
 pub fn build(b: *std.build.Builder) !void {
     const target = b.standardTargetOptions(.{});
@@ -30,9 +30,9 @@ pub fn build(b: *std.build.Builder) !void {
     });
 
     // now, here comes the C and C++ stuff for the actual chat client
-    exe.addIncludePath("./llm");
-    exe.addCSourceFile("llm/ggml.c", &.{ "-std=c11", "-D_POSIX_C_SOURCE=199309L", "-pthread" });
-    exe.addCSourceFiles(&.{ "llm/utils.cpp", "llm/chat.cpp" }, &.{"-std=c++11"});
+    exe.addIncludePath("src/llm");
+    exe.addCSourceFile("src/llm/ggml.c", &.{ "-std=c11", "-D_POSIX_C_SOURCE=199309L", "-pthread" });
+    exe.addCSourceFiles(&.{ "src/llm/utils.cpp", "src/llm/chat.cpp" }, &.{"-std=c++11"});
     curl.link(exe, .{});
     exe.linkLibC();
     exe.linkLibCpp();
