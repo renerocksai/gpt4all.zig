@@ -25,7 +25,7 @@ If your downloaded model file is located elsewhere, you can start the chat clien
 $ ./zig-out/bin/chat -m /path/to/model.bin
 ```
 
-![](chat.png)
+![](img/chat.png)
 
 ## The Foundation of GPT4All.zig:
 
