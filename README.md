@@ -8,11 +8,12 @@ Yes! ChatGPT-like powers on your PC, no internet and no expensive GPU required!
 
 Here it's running inside of NeoVim:
 
-![](./2023-04-08_00-39.png)
+![](./img/2023-04-08_00-39.png)
+
 
 And here is how it runs on my machine (low quality GIF):
 
-![](./gpt4all.zig.GIF)
+![](./img/gpt4all.zig.GIF)
 
 # Try it yourself
 
@@ -78,7 +79,7 @@ If you want to build it yourself: Make sure to check out / download the branch
 dependencies of `libcurl`. My test on a fresh Windows 10 machine suggests that
 building curl on Windows needs more work.
 
-![](./windows-no-curl-branch.png)
+![](./img/windows-no-curl-branch.png)
 
 - Make sure, the model file and the `chat.exe` are in the same folder.
 - Then double-click `chat.exe`
