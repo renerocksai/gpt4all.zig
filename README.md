@@ -19,10 +19,21 @@ And here is how it runs on my machine (low quality GIF):
 Here's how to get started with the CPU quantized GPT4All model checkpoint:
 
 **Windows Users**: 
-- **[download the released chat.exe](https://github.com/renerocksai/gpt4all.zig/releases/download/win_no-curl_1/chat.exe) from the [GitHub releases](https://github.com/renerocksai/gpt4all.zig/releases) and start using it without building:**
-    - Make sure, the model file [gpt4all-lora-quantized.bin](https://the-eye.eu/public/AI/models/nomic-ai/gpt4all/gpt4all-lora-quantized.bin) and the [chat.exe](https://github.com/renerocksai/gpt4all.zig/releases/download/win_no-curl_1/chat.exe) are in the same folder.
+
+- **[Download the released
+  chat.exe](https://github.com/renerocksai/gpt4all.zig/releases/download/win_no-curl_1/chat.exe)
+  from the [GitHub
+  releases](https://github.com/renerocksai/gpt4all.zig/releases) and start using
+  it without building:**
+    - Make sure, the model file
+      [gpt4all-lora-quantized.bin](https://the-eye.eu/public/AI/models/nomic-ai/gpt4all/gpt4all-lora-quantized.bin)
+      and the
+      [chat.exe](https://github.com/renerocksai/gpt4all.zig/releases/download/win_no-curl_1/chat.exe)
+      are in the same folder.
     - Then double-click `chat.exe`
-- Alternatively, first select the `no-curl` branch for a succesful build, see [here](#windows-users) and continue with step 2. See [the Windows section](#windows-users) for more information.
+- Alternatively, first select the `no-curl` branch for a succesful build, see
+  [here](#windows-users) and continue with step 2. See [the Windows
+  section](#windows-users) for more information.
 
 **macOS, Linux, brave Windows users**:
 
@@ -33,8 +44,6 @@ Here's how to get started with the CPU quantized GPT4All model checkpoint:
    Link](https://the-eye.eu/public/AI/models/nomic-ai/gpt4all/gpt4all-lora-quantized.bin)
    or [Torrent-Magnet](https://tinyurl.com/gpt4all-lora-quantized).
 2. Clone or download this repository
-
-
 3. Compile with `zig build -Doptimize=ReleaseFast`
 4. Run with `./zig-out/bin/chat`
 
@@ -98,8 +107,6 @@ From here,
   `cpp_main()`.
 - write leightweight zig bindings to provide a prompt and context, etc. to the
   model and run inference, probably with callbacks.
-
-## Cross-Platform?
 
 The Windows build of `libcurl` needs more work. Maybe it's even a bug in current
 zig master. It seems like zig is attempting to run `pkg-config` which, of
