@@ -18,6 +18,14 @@ And here is how it runs on my machine (low quality GIF):
 
 Here's how to get started with the CPU quantized GPT4All model checkpoint:
 
+**Windows Users**: 
+- **[download the released chat.exe](https://github.com/renerocksai/gpt4all.zig/releases/download/win_no-curl_1/chat.exe) from the [GitHub releases](https://github.com/renerocksai/gpt4all.zig/releases) and start using it without building:**
+    - Make sure, the model file [gpt4all-lora-quantized.bin](https://the-eye.eu/public/AI/models/nomic-ai/gpt4all/gpt4all-lora-quantized.bin) and the [chat.exe](https://github.com/renerocksai/gpt4all.zig/releases/download/win_no-curl_1/chat.exe) are in the same folder.
+    - Then double-click `chat.exe`
+- Alternatively, first select the `no-curl` branch for a succesful build, see [here](#windows-users) and continue with step 2. See [the Windows section](#windows-users) for more information.
+
+**macOS, Linux, brave Windows users**:
+
 0. Make sure you have Zig master installed. Download from
    [here](https://ziglang.org/download/).
 1. **Optional:** Download the LLM model `gpt4all-lora-quantized.bin` file from
@@ -26,9 +34,6 @@ Here's how to get started with the CPU quantized GPT4All model checkpoint:
    or [Torrent-Magnet](https://tinyurl.com/gpt4all-lora-quantized).
 2. Clone or download this repository
 
-**Windows Users**: 
-- Please, first select the `no-curl` branch for a succesful build, see [here](#windows-users).
-- **Alternatively, [download the released chat.exe](https://github.com/renerocksai/gpt4all.zig/releases/download/win_no-curl_1/chat.exe) from the [GitHub releases](https://github.com/renerocksai/gpt4all.zig/releases) and start using it without building.**
 
 3. Compile with `zig build -Doptimize=ReleaseFast`
 4. Run with `./zig-out/bin/chat`
@@ -65,6 +70,9 @@ dependencies of `libcurl`. My test on a fresh Windows 10 machine suggests that
 building curl on Windows needs more work.
 
 ![](./windows-no-curl-branch.png)
+
+- Make sure, the model file and the `chat.exe` are in the same folder.
+- Then double-click `chat.exe`
 
 ---
 
