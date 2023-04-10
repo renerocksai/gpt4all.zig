@@ -36,5 +36,8 @@ pub fn build(b: *std.build.Builder) !void {
     curl.link(exe, .{});
     exe.linkLibC();
     exe.linkLibCpp();
+    if (exe.target.isWindows()) {
+        exe.want_lto = false;
+    }
     exe.install();
 }

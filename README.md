@@ -18,14 +18,23 @@ And here is how it runs on my machine (low quality GIF):
 
 Here's how to get started with the CPU quantized GPT4All model checkpoint:
 
-0. Make sure you have Zig master installed. Download from [here](https://ziglang.org/download/)
-1. **Optional:** Download the `gpt4all-lora-quantized.bin` file from [Direct Link](https://the-eye.eu/public/AI/models/nomic-ai/gpt4all/gpt4all-lora-quantized.bin) or [[Torrent-Magnet]](https://tinyurl.com/gpt4all-lora-quantized).
+0. Make sure you have Zig master installed. Download from
+   [here](https://ziglang.org/download/).
+1. **Optional:** Download the LLM model `gpt4all-lora-quantized.bin` file from
+   [Direct
+   Link](https://the-eye.eu/public/AI/models/nomic-ai/gpt4all/gpt4all-lora-quantized.bin)
+   or [Torrent-Magnet](https://tinyurl.com/gpt4all-lora-quantized).
 2. Clone or download this repository
+
+**Windows Users**: 
+- Please, first select the `no-curl` branch for a succesful build, see [here](#windows-users).
+- **Alternatively, [download the released chat.exe](https://github.com/renerocksai/gpt4all.zig/releases/download/win_no-curl_1/chat.exe) from the [GitHub releases](https://github.com/renerocksai/gpt4all.zig/releases) and start using it without building.**
+
 3. Compile with `zig build -Doptimize=ReleaseFast`
 4. Run with `./zig-out/bin/chat`
 
 If you didn't download the model yourself, the download of the model is
-performed automatically:
+performed automatically ([except on Windows](#windows-users)):
 
 ```shell
 $ ./zig-out/bin/chat 
@@ -39,9 +48,6 @@ If you downloaded the model yourself and saved in a different location, start wi
 $ ./zig-out/bin/chat -m /path/to/model.bin
 ```
 
-**In case of errors on Windows**: Check out / download the branch `no-curl`.
-This has the model download feature removed, that came with lots of
-dependencies. I haven't tested this code on Windows yet.
 
 **Please note**: This work merely adds a `build.zig` and the automatic model
 download to the excellent work done by Nomic.ai:
@@ -49,6 +55,18 @@ download to the excellent work done by Nomic.ai:
 - [gpt4all.cpp](https://github.com/zanussbaum/gpt4all.cpp): Source code of the
   chat client
 
+## Windows Users
+
+**First, you might want to try [the released chat.exe](https://github.com/renerocksai/gpt4all.zig/releases/download/win_no-curl_1/chat.exe) from the [GitHub releases](https://github.com/renerocksai/gpt4all.zig/releases).**
+
+If you want to build it yourself: Make sure to check out / download the branch
+`no-curl`. This has the model download feature removed, that came with lots of
+dependencies of `libcurl`. My test on a fresh Windows 10 machine suggests that
+building curl on Windows needs more work.
+
+![](./windows-no-curl-branch.png)
+
+---
 
 ## How to use other models like gpt4all-lora-unfiltered
 
@@ -73,16 +91,17 @@ From here,
 - write leightweight zig bindings to provide a prompt and context, etc. to the
   model and run inference, probably with callbacks.
 
-## Linux and Mac only?
+## Cross-Platform?
 
-Also, so far I have only tested this on Linux and macOS. Would be interesting to
-know if modifications are required for Windows. If so, the answers
-will all be `Makefile` of gpt4all.cpp 😊.
+The Windows build of `libcurl` needs more work. Maybe it's even a bug in current
+zig master. It seems like zig is attempting to run `pkg-config` which, of
+course, doesn't exist on Windows.
 
 
 ## Closing remarks
 
-I was unable to use the binary chat clients provided by GPT4All on my NixOS box:
+Since I was unable to use the binary chat clients provided by GPT4All on my
+NixOS box:
 
 ```
 gpt4all-lora-quantized-linux-x86: error while loading shared libraries: libstdc++.so.6: cannot open shared ob ject file: No such file or directory
