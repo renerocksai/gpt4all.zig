@@ -35,7 +35,7 @@ pub fn create(b: *Builder, target: std.zig.CrossTarget, optimize: std.builtin.Op
     ret.linkLibC();
 
     if (target.isWindows())
-        ret.linkSystemLibrary("ws2_32");
+        ret.linkSystemLibraryName("ws2_32");
 
     return Library{ .step = ret };
 }
