@@ -24,6 +24,8 @@ Here's how to get started with the CPU quantized GPT4All model checkpoint:
 - **Download the released chat.exe from the [GitHub
   releases](https://github.com/renerocksai/gpt4all.zig/releases) and start using
   it without building:**
+    - _Note that with such a generic build, CPU-specific optimizations your
+      machine would be capable of are not enabled._
     - Make sure, the model file
       [gpt4all-lora-quantized.bin](https://the-eye.eu/public/AI/models/nomic-ai/gpt4all/gpt4all-lora-quantized.bin)
       and the [chat.exe](https://github.com/renerocksai/gpt4all.zig/releases)
@@ -31,7 +33,9 @@ Here's how to get started with the CPU quantized GPT4All model checkpoint:
       attempt to download it for you when it starts.
     - Then double-click `chat.exe`
 
-## macOS, Linux, brave Windows users
+## macOS, Linux, brave Windows users - optimized builds
+
+Building on your machine ensures that everything is optimized for your very CPU.
 
 0. Make sure you have Zig master installed. Download from
    [here](https://ziglang.org/download/).
