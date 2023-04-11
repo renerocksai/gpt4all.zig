@@ -1,5 +1,5 @@
 const std = @import("std");
-const download = @import("download.zig");
+const download_to_file = @import("download.zig").download_to_file;
 
 pub extern fn cpp_main(argc: c_int, argv: [*][*c]const u8) c_int;
 
@@ -60,7 +60,7 @@ pub fn main() !u8 {
     }
 
     if (do_download_model) {
-        if (download.download_to_file(download_url, model_fn)) |_| {} else |err| {
+        if (download_to_file(download_url, model_fn)) |_| {} else |err| {
             std.debug.print("Diagnostics: {any}\n", .{err});
         }
     }
