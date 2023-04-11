@@ -1,11 +1,6 @@
 const std = @import("std");
 const testing = std.testing;
 
-test "rene" {
-    std.log.err("tests are running\n", .{});
-    try std.testing.expectEqual(true, false);
-}
-
 pub const c = @cImport({
     @cInclude("curl/curl.h");
 });
@@ -163,28 +158,6 @@ fn emptyWrite(ptr: ?[*]u8, size: usize, nmemb: usize, data: ?*anyopaque) callcon
     _ = size;
 
     return nmemb;
-}
-
-pub fn main() !void {
-    const Fifo = std.fifo.LinearFifo(u8, .{ .Dynamic = {} });
-
-    try globalInit();
-    defer globalCleanup();
-
-    var fifo = Fifo.init(std.heap.page_allocator);
-    defer fifo.deinit();
-
-    var easy = try Easy.init();
-    defer easy.cleanup();
-
-    try easy.setUrl("https://httpbin.org/get");
-    try easy.setSslVerifyPeer(false);
-    try easy.setWriteFn(writeToFifo(Fifo));
-    try easy.setWriteData(&fifo);
-    try easy.setVerbose(true);
-    try easy.perform();
-    const code = try easy.getResponseCode();
-    std.debug.print("result code: {}\n", .{code});
 }
 
 test "https get" {

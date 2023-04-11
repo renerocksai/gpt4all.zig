@@ -1,5 +1,5 @@
 const std = @import("std");
-const curl = @import("curl.zig");
+const curl = @import("curl");
 
 /// download url -> output_fn
 /// first read into a fifo and only on completion, write everything to file

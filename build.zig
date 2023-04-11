@@ -29,6 +29,11 @@ pub fn build(b: *std.build.Builder) !void {
         .optimize = optimize,
     });
 
+    const curl_module = b.createModule(.{
+        .source_file = .{ .path = "./src/zig-libcurl/src/main.zig" },
+    });
+    exe.addModule("curl", curl_module);
+
     // now, here comes the C and C++ stuff for the actual chat client
     exe.addIncludePath("src/llm");
     exe.addCSourceFile("src/llm/ggml.c", &.{ "-std=c11", "-D_POSIX_C_SOURCE=200809L", "-pthread" });
