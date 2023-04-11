@@ -16,10 +16,14 @@ pub fn build(b: *std.build.Builder) !void {
     const ssh2 = libssh2.create(b, target, optimize);
     tls.link(ssh2.step);
 
-    const curl = try libcurl.create(b, target, optimize);
-    ssh2.link(curl.step);
-    tls.link(curl.step);
-    z.link(curl.step, .{});
+    const curllib = try libcurl.create(b, target, optimize);
+    ssh2.link(curllib.step);
+    tls.link(curllib.step);
+    z.link(curllib.step, .{});
+
+    const curl = b.createModule(.{
+        .source_file = .{ .path = "./src/zig-libcurl/src/main.zig" },
+    });
 
     const exe = b.addExecutable(.{
         .name = "chat",
@@ -28,17 +32,13 @@ pub fn build(b: *std.build.Builder) !void {
         .target = target,
         .optimize = optimize,
     });
-
-    const curl_module = b.createModule(.{
-        .source_file = .{ .path = "./src/zig-libcurl/src/main.zig" },
-    });
-    exe.addModule("curl", curl_module);
+    exe.addModule("curl", curl);
 
     // now, here comes the C and C++ stuff for the actual chat client
     exe.addIncludePath("src/llm");
     exe.addCSourceFile("src/llm/ggml.c", &.{ "-std=c11", "-D_POSIX_C_SOURCE=200809L", "-pthread" });
     exe.addCSourceFiles(&.{ "src/llm/utils.cpp", "src/llm/chat.cpp" }, &.{"-std=c++11"});
-    curl.link(exe, .{});
+    curllib.link(exe, .{});
     exe.linkLibC();
     exe.linkLibCpp();
     if (exe.target.isWindows()) {
