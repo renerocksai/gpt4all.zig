@@ -26,14 +26,11 @@ pub fn main() !u8 {
             seen_minus_m = true;
         }
         if (std.mem.eql(u8, arg, "-u")) {
-            // std.debug.print("skipping {} : {s}\n", .{ i, arg });
             const next = args_it.next();
             if (next) |url| {
-                // std.debug.print("skipping {} : {s}\n", .{ i, url });
                 model_url_option = url;
             }
         } else {
-            // std.debug.print("adding   {} : {s}\n", .{ i, arg });
             try argv.append(arg);
             i += 1;
         }
