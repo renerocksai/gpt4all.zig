@@ -113,5 +113,7 @@ future in mind, I began writing a `build.zig`. I really think that the
 simplicity of it speaks for itself. 
 
 The only difficulty I encountered was needing to specify
-`D_POSIX_C_SOURCE=199309` for `clock_gettime()` to work with zig's built-in
-clang on my machine.
+`D_POSIX_C_SOURCE=199309L` for `clock_gettime()` to work with zig's built-in
+clang on my machine. Thanks to @charlieroth, I bumped the value up  to
+`200809L`, to make it work on his 2020 MacBook Pro. Apparently, the same value
+is used in mbedtls, so it's now consistent across the entire repository.
