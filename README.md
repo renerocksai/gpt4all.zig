@@ -67,7 +67,7 @@ $ ./zig-out/bin/chat -m /path/to/model.bin
 ```
 
 
-**Please note**: This work both adds a `build.zig`, the automatic model
+**Please note**: This work adds a `build.zig`, the automatic model
 download, and a text-mode chat interface like the one known from gpt4all.cpp to
 the excellent work done by Nomic.ai:
 - [GPT4All](https://github.com/nomic-ai/gpt4all): Everything GPT4All
