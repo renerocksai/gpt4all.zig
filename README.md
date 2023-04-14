@@ -72,7 +72,7 @@ $ ./zig-out/bin/chat -m /path/to/model.bin
 download, and a text-mode chat interface like the one known from gpt4all.cpp to
 the excellent work done by Nomic.ai:
 - [GPT4All](https://github.com/nomic-ai/gpt4all): Everything GPT4All
-- [gpt4all.cpp](https://github.com/nomic-ai/gpt4all-chat): Source code of the
+- [gpt4all-chat](https://github.com/nomic-ai/gpt4all-chat): Source code of the
   GUI chat client
 
 ---
