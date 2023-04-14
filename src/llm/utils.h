@@ -24,7 +24,7 @@ struct gpt_params {
 
     int32_t n_batch = 8; // batch size for prompt processing
 
-    std::string model = "models/gpt-2-117M/ggml-model.bin"; // model path
+    std::string model = "ggml-gpt4all-j.bin"; // model path
     std::string prompt;
     bool use_color = true; // use color to distinguish generations and inputs
 
