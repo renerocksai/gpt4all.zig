@@ -45,8 +45,7 @@ CPU**.
 0. Make sure you have Zig master installed. Download from
    [here](https://ziglang.org/download/).
 1. **Optional:** Download the LLM model `ggml-gpt4all-j.bin` file from
-   [here](https://gpt4all.io/ggml-gpt4all-j.bin)
-   or [Torrent-Magnet](https://tinyurl.com/gpt4all-lora-quantized).
+   [here](https://gpt4all.io/ggml-gpt4all-j.bin).
 2. Clone or download this repository
 3. Compile with `zig build -Doptimize=ReleaseFast`
 4. Run with `./zig-out/bin/chat` - or on Windows: start with: `zig-out\bin\chat`
