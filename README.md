@@ -117,3 +117,7 @@ The only difficulty I encountered was needing to specify
 clang on my machine. Thanks to @charlieroth, I bumped the value up  to
 `200809L`, to make it work on his 2020 MacBook Pro. Apparently, the same value
 is used in mbedtls, so it's now consistent across the entire repository.
+
+---
+
+GPT4ALL-J chat commit : 9de185488cc4fa8a1110eadb2b523b6ee3e3d480

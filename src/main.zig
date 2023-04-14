@@ -42,7 +42,7 @@ pub fn main() !u8 {
     if (std.fs.cwd().statFile(model_fn)) |stat| {
         // instead of checking MD5 sum which might change, we check the file
         // size, roughly
-        if (stat.size < 4 * 1000 * 1000 * 1000) {
+        if (stat.size < 3500 * 1000 * 1000) {
             std.debug.print(
                 "Model File size {} does not seem right, downloading from...: {s}",
                 .{ stat.size, download_url },
