@@ -65,6 +65,7 @@ const char * print_system_info(void) {
     return s.c_str();
 }
 
+
 extern "C" int cpp_main(int argc, char ** argv) {
     ggml_time_init();
     const int64_t t_main_start_us = ggml_time_us();
@@ -183,12 +184,19 @@ extern "C" int cpp_main(int argc, char ** argv) {
     size_t mem_per_token = 0;
     gptj_eval(model, params.n_threads, 0, { 0, 1, 2, 3 }, logits, mem_per_token);
 
+
+//
+    int last_n_size = 64;
+    std::vector<gpt_vocab::id> last_n_tokens(last_n_size);
+    std::fill(last_n_tokens.begin(), last_n_tokens.end(), 0);
+
+
     if (params.interactive) {
         fprintf(stderr, "== Running in chat mode. ==\n"
 #if defined (__unix__) || (defined (__APPLE__) && defined (__MACH__)) || defined (_WIN32)
                " - Press Ctrl+C to interject at any time.\n"
 #endif
-               " - Press Return to return control to GPT4ALL.\n"
+               " - Press Return to return control to LLaMA.\n"
                " - If you want to submit another line, end your input in '\\'.\n");
     }
 
@@ -197,13 +205,23 @@ extern "C" int cpp_main(int argc, char ** argv) {
     int input_consumed = 0;
     bool input_noecho = true;
 
-    for (int i = embd.size(); i < embd_inp.size() + params.n_predict; i++) {
+    // prompt user immediately after the starting prompt has been loaded
+    if (params.interactive_start) {
+        is_interacting = true;
+    }
+
+    // set the color for the prompt which will be output initially
+    if (params.use_color) {
+        printf(ANSI_COLOR_YELLOW);
+    }
+
+    while (remaining_tokens > 0) {
         // predict
         if (embd.size() > 0) {
             const int64_t t_start_us = ggml_time_us();
 
             if (!gptj_eval(model, params.n_threads, n_past, embd, logits, mem_per_token)) {
-                printf("Failed to predict\n");
+                fprintf(stderr, "Failed to predict\n");
                 return 1;
             }
 
@@ -213,11 +231,12 @@ extern "C" int cpp_main(int argc, char ** argv) {
         n_past += embd.size();
         embd.clear();
 
-        if (i >= embd_inp.size()) {
-            // sample next token
-            const int   top_k = params.top_k;
+        if (embd_inp.size() <= input_consumed && !is_interacting) {
+            // out of user input, sample next token
+            const float top_k = params.top_k;
             const float top_p = params.top_p;
             const float temp  = params.temp;
+            const float repeat_penalty = 1.30f; // model.hparams.repeat_penalty;
 
             const int n_vocab = model.hparams.n_vocab;
 
@@ -226,252 +245,144 @@ extern "C" int cpp_main(int argc, char ** argv) {
             {
                 const int64_t t_start_sample_us = ggml_time_us();
 
+                // id = gpt_sample_top_k_top_p(vocab, logits.data() + (logits.size() - n_vocab), last_n_tokens, repeat_penalty, top_k, top_p, temp, rng);
                 id = gpt_sample_top_k_top_p(vocab, logits.data() + (logits.size() - n_vocab), top_k, top_p, temp, rng);
+
+                last_n_tokens.erase(last_n_tokens.begin());
+                last_n_tokens.push_back(id);
 
                 t_sample_us += ggml_time_us() - t_start_sample_us;
             }
 
             // add it to the context
             embd.push_back(id);
+
+            // echo this to console
+            input_noecho = false;
+
+            // decrement remaining sampling budget
+            --remaining_tokens;
         } else {
-            // if here, it means we are still processing the input prompt
-            for (int k = i; k < embd_inp.size(); k++) {
-                embd.push_back(embd_inp[k]);
+            // some user input remains from prompt or interaction, forward it to processing
+            while (embd_inp.size() > input_consumed) {
+                // fprintf(stderr, "%6d -> '%s'\n", embd_inp[input_consumed], vocab.id_to_token.at(embd_inp[input_consumed]).c_str());
+
+                embd.push_back(embd_inp[input_consumed]);
+                last_n_tokens.erase(last_n_tokens.begin());
+                last_n_tokens.push_back(embd_inp[input_consumed]);
+                ++input_consumed;
                 if (embd.size() > params.n_batch) {
                     break;
                 }
             }
-            i += embd.size() - 1;
+
+            // reset color to default if we there is no pending user input
+            if (!input_noecho && params.use_color && embd_inp.size() == input_consumed) {
+                printf(ANSI_COLOR_RESET);
+            }
         }
 
         // display text
-        for (auto id : embd) {
-            printf("%s", vocab.id_to_token[id].c_str());
+        if (!input_noecho) {
+            for (auto id : embd) {
+                if (id != 50256) 
+                    printf("%s", vocab.id_to_token[id].c_str());
+            }
+            fflush(stdout);
         }
-        fflush(stdout);
+
+        // in interactive mode, and not currently processing queued inputs;
+        // check if we should prompt the user for more
+        if (params.interactive && embd_inp.size() <= input_consumed) {
+            // check for reverse prompt
+            // if (antiprompt_inp.size() && std::equal(antiprompt_inp.rbegin(), antiprompt_inp.rend(), last_n_tokens.rbegin())) {
+            //     // reverse prompt found
+            //     is_interacting = true;
+            // }
+            if (is_interacting) {
+                // input_consumed =  0;
+                // embd_inp.erase(embd_inp.begin());
+                input_consumed = embd_inp.size();
+                embd_inp.insert(embd_inp.end(), prompt_inp.begin(), prompt_inp.end());
+                
+
+                // set the color for the prompt which will be output initially
+                if (params.use_color) {
+                    printf(ANSI_COLOR_YELLOW);
+                }
+                printf("\n> ");
+
+                // currently being interactive
+                bool another_line=true;
+                while (another_line) {
+                    fflush(stdout);
+                    char buf[256] = {0};
+                    int n_read;
+                    if(params.use_color) printf(ANSI_BOLD ANSI_COLOR_GREEN);
+                    if (scanf("%255[^\n]%n%*c", buf, &n_read) <= 0) {
+                        // presumable empty line, consume the newline
+                        if (scanf("%*c") <= 0) { /*ignore*/ }
+                        n_read=0;
+                    }
+                    if(params.use_color) printf(ANSI_COLOR_RESET);
+
+                    if (n_read > 0 && buf[n_read-1]=='\\') {
+                        another_line = true;
+                        buf[n_read-1] = '\n';
+                        buf[n_read] = 0;
+                    } else {
+                        another_line = false;
+                        buf[n_read] = '\n';
+                        buf[n_read+1] = 0;
+                    }
+
+                    std::vector<gpt_vocab::id> line_inp = ::gpt_tokenize(vocab, buf);
+                    embd_inp.insert(embd_inp.end(), line_inp.begin(), line_inp.end());
+                    embd_inp.insert(embd_inp.end(), response_inp.begin(), response_inp.end());
+
+                    remaining_tokens -= prompt_inp.size() + line_inp.size() + response_inp.size();
+
+                    input_noecho = true; // do not echo this again
+                }
+
+                is_interacting = false;
+            }
+        }
 
         // end of text token
         if (embd.back() == 50256) {
-            break;
+            if (params.interactive) {
+                is_interacting = true;
+                continue;
+            } else {
+                printf("\n");
+                fprintf(stderr, " [end of text]\n");
+                break;
+            }
         }
     }
+
+#if defined (_WIN32)
+    signal(SIGINT, SIG_DFL);
+#endif
 
     // report timing
     {
         const int64_t t_main_end_us = ggml_time_us();
 
-        printf("\n\n");
-        printf("%s: mem per token = %8zu bytes\n", __func__, mem_per_token);
-        printf("%s:     load time = %8.2f ms\n", __func__, t_load_us/1000.0f);
-        printf("%s:   sample time = %8.2f ms\n", __func__, t_sample_us/1000.0f);
-        printf("%s:  predict time = %8.2f ms / %.2f ms per token\n", __func__, t_predict_us/1000.0f, t_predict_us/1000.0f/n_past);
-        printf("%s:    total time = %8.2f ms\n", __func__, (t_main_end_us - t_main_start_us)/1000.0f);
+        fprintf(stderr, "\n\n");
+        fprintf(stderr, "%s: mem per token = %8zu bytes\n", __func__, mem_per_token);
+        fprintf(stderr, "%s:     load time = %8.2f ms\n", __func__, t_load_us/1000.0f);
+        fprintf(stderr, "%s:   sample time = %8.2f ms\n", __func__, t_sample_us/1000.0f);
+        fprintf(stderr, "%s:  predict time = %8.2f ms / %.2f ms per token\n", __func__, t_predict_us/1000.0f, t_predict_us/1000.0f/n_past);
+        fprintf(stderr, "%s:    total time = %8.2f ms\n", __func__, (t_main_end_us - t_main_start_us)/1000.0f);
     }
 
     ggml_free(model.ctx);
 
+    if (params.use_color) {
+        printf(ANSI_COLOR_RESET);
+    }
+
     return 0;
 }
-
-
-
-
-
-
-//
-//     int last_n_size = params.repeat_last_n;
-//     std::vector<gpt_vocab::id> last_n_tokens(last_n_size);
-//     std::fill(last_n_tokens.begin(), last_n_tokens.end(), 0);
-//
-//
-//     if (params.interactive) {
-//         fprintf(stderr, "== Running in chat mode. ==\n"
-// #if defined (__unix__) || (defined (__APPLE__) && defined (__MACH__)) || defined (_WIN32)
-//                " - Press Ctrl+C to interject at any time.\n"
-// #endif
-//                " - Press Return to return control to LLaMA.\n"
-//                " - If you want to submit another line, end your input in '\\'.\n");
-//     }
-//
-//     // we may want to slide the input window along with the context, but for now we restrict to the context length
-//     int remaining_tokens = model.hparams.n_ctx - embd_inp.size();
-//     int input_consumed = 0;
-//     bool input_noecho = true;
-//
-//     // prompt user immediately after the starting prompt has been loaded
-//     if (params.interactive_start) {
-//         is_interacting = true;
-//     }
-//
-//     // set the color for the prompt which will be output initially
-//     if (params.use_color) {
-//         printf(ANSI_COLOR_YELLOW);
-//     }
-//
-//     
-//
-//     while (remaining_tokens > 0) {
-//         // predict
-//         if (embd.size() > 0) {
-//             const int64_t t_start_us = ggml_time_us();
-//
-//             if (!gpt_eval(model, params.n_threads, n_past, embd, logits, mem_per_token)) {
-//                 fprintf(stderr, "Failed to predict\n");
-//                 return 1;
-//             }
-//
-//             t_predict_us += ggml_time_us() - t_start_us;
-//         }
-//
-//         n_past += embd.size();
-//         embd.clear();
-//
-//         if (embd_inp.size() <= input_consumed && !is_interacting) {
-//             // out of user input, sample next token
-//             const float top_k = params.top_k;
-//             const float top_p = params.top_p;
-//             const float temp  = params.temp;
-//             const float repeat_penalty = params.repeat_penalty;
-//
-//             const int n_vocab = model.hparams.n_vocab;
-//
-//             gpt_vocab::id id = 0;
-//
-//             {
-//                 const int64_t t_start_sample_us = ggml_time_us();
-//
-//                 id = gpt_sample_top_k_top_p(vocab, logits.data() + (logits.size() - n_vocab), last_n_tokens, repeat_penalty, top_k, top_p, temp, rng);
-//
-//                 last_n_tokens.erase(last_n_tokens.begin());
-//                 last_n_tokens.push_back(id);
-//
-//                 t_sample_us += ggml_time_us() - t_start_sample_us;
-//             }
-//
-//             // add it to the context
-//             embd.push_back(id);
-//
-//             // echo this to console
-//             input_noecho = false;
-//
-//             // decrement remaining sampling budget
-//             --remaining_tokens;
-//         } else {
-//             // some user input remains from prompt or interaction, forward it to processing
-//             while (embd_inp.size() > input_consumed) {
-//                 // fprintf(stderr, "%6d -> '%s'\n", embd_inp[input_consumed], vocab.id_to_token.at(embd_inp[input_consumed]).c_str());
-//
-//                 embd.push_back(embd_inp[input_consumed]);
-//                 last_n_tokens.erase(last_n_tokens.begin());
-//                 last_n_tokens.push_back(embd_inp[input_consumed]);
-//                 ++input_consumed;
-//                 if (embd.size() > params.n_batch) {
-//                     break;
-//                 }
-//             }
-//
-//             // reset color to default if we there is no pending user input
-//             if (!input_noecho && params.use_color && embd_inp.size() == input_consumed) {
-//                 printf(ANSI_COLOR_RESET);
-//             }
-//         }
-//
-//         // display text
-//         if (!input_noecho) {
-//             for (auto id : embd) {
-//                 printf("%s", vocab.id_to_token[id].c_str());
-//             }
-//             fflush(stdout);
-//         }
-//
-//         // in interactive mode, and not currently processing queued inputs;
-//         // check if we should prompt the user for more
-//         if (params.interactive && embd_inp.size() <= input_consumed) {
-//             // check for reverse prompt
-//             // if (antiprompt_inp.size() && std::equal(antiprompt_inp.rbegin(), antiprompt_inp.rend(), last_n_tokens.rbegin())) {
-//             //     // reverse prompt found
-//             //     is_interacting = true;
-//             // }
-//             if (is_interacting) {
-//                 // input_consumed =  0;
-//                 // embd_inp.erase(embd_inp.begin());
-//                 input_consumed = embd_inp.size();
-//                 embd_inp.insert(embd_inp.end(), prompt_inp.begin(), prompt_inp.end());
-//                 
-//
-//                 printf("\n> ");
-//
-//                 // currently being interactive
-//                 bool another_line=true;
-//                 while (another_line) {
-//                     fflush(stdout);
-//                     char buf[256] = {0};
-//                     int n_read;
-//                     if(params.use_color) printf(ANSI_BOLD ANSI_COLOR_GREEN);
-//                     if (scanf("%255[^\n]%n%*c", buf, &n_read) <= 0) {
-//                         // presumable empty line, consume the newline
-//                         if (scanf("%*c") <= 0) { /*ignore*/ }
-//                         n_read=0;
-//                     }
-//                     if(params.use_color) printf(ANSI_COLOR_RESET);
-//
-//                     if (n_read > 0 && buf[n_read-1]=='\\') {
-//                         another_line = true;
-//                         buf[n_read-1] = '\n';
-//                         buf[n_read] = 0;
-//                     } else {
-//                         another_line = false;
-//                         buf[n_read] = '\n';
-//                         buf[n_read+1] = 0;
-//                     }
-//
-//                     std::vector<gpt_vocab::id> line_inp = ::gpt_tokenize(vocab, buf, false);
-//                     embd_inp.insert(embd_inp.end(), line_inp.begin(), line_inp.end());
-//                     embd_inp.insert(embd_inp.end(), response_inp.begin(), response_inp.end());
-//
-//                     remaining_tokens -= prompt_inp.size() + line_inp.size() + response_inp.size();
-//
-//                     input_noecho = true; // do not echo this again
-//                 }
-//
-//                 is_interacting = false;
-//             }
-//         }
-//
-//         // end of text token
-//         if (embd.back() == 2) {
-//             if (params.interactive) {
-//                 is_interacting = true;
-//                 continue;
-//             } else {
-//                 printf("\n");
-//                 fprintf(stderr, " [end of text]\n");
-//                 break;
-//             }
-//         }
-//     }
-//
-// #if defined (_WIN32)
-//     signal(SIGINT, SIG_DFL);
-// #endif
-//
-//     // report timing
-//     {
-//         const int64_t t_main_end_us = ggml_time_us();
-//
-//         fprintf(stderr, "\n\n");
-//         fprintf(stderr, "%s: mem per token = %8zu bytes\n", __func__, mem_per_token);
-//         fprintf(stderr, "%s:     load time = %8.2f ms\n", __func__, t_load_us/1000.0f);
-//         fprintf(stderr, "%s:   sample time = %8.2f ms\n", __func__, t_sample_us/1000.0f);
-//         fprintf(stderr, "%s:  predict time = %8.2f ms / %.2f ms per token\n", __func__, t_predict_us/1000.0f, t_predict_us/1000.0f/n_past);
-//         fprintf(stderr, "%s:    total time = %8.2f ms\n", __func__, (t_main_end_us - t_main_start_us)/1000.0f);
-//     }
-//
-//     ggml_free(model.ctx);
-//
-//     if (params.use_color) {
-//         printf(ANSI_COLOR_RESET);
-//     }
-//
-//     return 0;
-// }
