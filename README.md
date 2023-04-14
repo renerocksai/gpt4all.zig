@@ -8,7 +8,7 @@ Yes! ChatGPT-like powers on your PC, no internet and no expensive GPU required!
 
 Here it's running inside of NeoVim:
 
-![](./img/2023-04-08_00-39.png)
+![](./img/2023-04-14_13-29.png)
 
 
 And here is how it runs on my machine (low quality GIF):
@@ -123,3 +123,12 @@ The only difficulty I encountered was needing to specify
 clang on my machine. Thanks to @charlieroth, I bumped the value up  to
 `200809L`, to make it work on his 2020 MacBook Pro. Apparently, the same value
 is used in mbedtls, so it's now consistent across the entire repository.
+
+The gif was created using the following command which I found on
+[StackExchange](https://superuser.com/questions/556029/how-do-i-convert-a-video-to-gif-using-ffmpeg-with-reasonable-quality):
+
+```console
+ffmpeg  -i ~/2023-04-14\ 14-05-50.mp4 \
+    -vf "fps=10,scale=1080:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse" \
+    -loop 0 output.gif
+```
