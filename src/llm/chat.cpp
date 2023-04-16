@@ -18,7 +18,7 @@
 #include <unistd.h>
 #elif defined (_WIN32)
 #include <signal.h>
-#include <Windows.h>
+#include <windows.h>
 #endif
 
 #define ANSI_COLOR_RED     "\x1b[31m"
