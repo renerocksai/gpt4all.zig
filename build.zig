@@ -39,7 +39,6 @@ pub fn build(b: *std.build.Builder) !void {
     exe.addCSourceFile("src/llm/ggml/ggml.c", &.{
         "-std=c11",
         "-D_POSIX_C_SOURCE=200809L", // for clock_gettime()
-        "-D__GNU_SOURCE", // attempt to fix for asprintf()
         "-pthread",
     });
     exe.addCSourceFiles(&.{

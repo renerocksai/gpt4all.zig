@@ -1,6 +1,8 @@
 // Defines CLOCK_MONOTONIC and asprintf on Linux
 #define _GNU_SOURCE
-
+#define __GNU_SOURCE
+#define _POSIX_C_SOURCE 200809L // for clock_gettime()
+#define __STDC_WANT_LIB_EXT2__ 1
 #include "ggml.h"
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
@@ -2899,9 +2901,11 @@ bool ggml_mlock(struct ggml_context * ctx, char ** err_p) {
         return true;
     }
     if (mlock(ctx->mem_buffer, ctx->mem_size)) {
+#ifndef __APPLE__
         int ret = asprintf(err_p, "failed to mlock %zu-byte buffer: %s\n" MLOCK_SUGGESTION,
                            ctx->mem_size, strerror(errno));
         GGML_ASSERT(ret >= 0);
+#endif
         return false;
     }
     ctx->mem_buffer_mlocked = true;
