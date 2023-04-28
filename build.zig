@@ -48,5 +48,5 @@ pub fn build(b: *std.build.Builder) !void {
     if (exe.target.isWindows()) {
         exe.want_lto = false;
     }
-    exe.install();
+    b.installArtifact(exe);
 }
