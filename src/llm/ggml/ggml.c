@@ -1,8 +1,12 @@
-// Defines CLOCK_MONOTONIC and asprintf on Linux
+// None of the below fix the "no asprintf on macos" bug in contrast to what
+// stackoverflow says
 #define _GNU_SOURCE
 #define __GNU_SOURCE
-#define _POSIX_C_SOURCE 200809L // for clock_gettime()
 #define __STDC_WANT_LIB_EXT2__ 1
+
+// Defines CLOCK_MONOTONIC and asprintf on Linux
+#define _POSIX_C_SOURCE 200809L // for clock_gettime()
+
 #include "ggml.h"
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
