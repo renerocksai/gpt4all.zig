@@ -1,0 +1,33 @@
+name: Works with Zig master
+on: 
+  push:
+    branches:
+    - master
+  pull_request:
+    branches:
+    - master
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+  
+jobs:
+  ci:
+    strategy:
+      matrix:
+        # platform: [ubuntu-latest, windows-latest]
+        platform: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v3
+      #- name: Setup Linux dependencies
+      #  if: runner.os == 'Linux'
+      #  run: |
+      #    sudo apt-get update
+      #    sudo apt-get install libgtk-3-dev
+      - uses: goto-bus-stop/setup-zig@v2
+        with:
+          version: master
+      - name: Check zig version
+        run: zig version
+      - name: Build simple endpoint example
+        run: zig build -Doptimize=ReleaseFast
