@@ -2,6 +2,8 @@
 <p align="center">ZIG build for a terminal-based chat client for an assistant-style large language model with ~800k GPT-3.5-Turbo Generations based on LLaMa</p>
 <p align="center"></p>
 
+![](https://github.com/renerocksai/gpt4all.zig/actions/workflows/mastercheck.yml/badge.svg)
+
 # Run a GPT4All GPT-J model locally
 
 Yes! ChatGPT-like powers on your PC, no internet and no expensive GPU required! 

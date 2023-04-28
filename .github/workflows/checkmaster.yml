@@ -29,5 +29,5 @@ jobs:
           version: master
       - name: Check zig version
         run: zig version
-      - name: Build simple endpoint example
+      - name: Build 
         run: zig build -Doptimize=ReleaseFast
