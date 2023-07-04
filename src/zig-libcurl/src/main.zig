@@ -24,10 +24,8 @@ pub fn writeToFifo(comptime FifoType: type) WriteFn {
         fn writeFn(ptr: ?[*]u8, size: usize, nmemb: usize, data: ?*anyopaque) callconv(.C) usize {
             _ = size;
             var slice = (ptr orelse return 0)[0..nmemb];
-            const fifo = @ptrCast(
-                *FifoType,
+            const fifo: *FifoType = @ptrCast(
                 @alignCast(
-                    @alignOf(*FifoType),
                     data orelse return 0,
                 ),
             );
@@ -48,10 +46,8 @@ pub fn readFromFbs(comptime FbsType: type) ReadFn {
     return struct {
         fn readFn(buffer: ?[*]u8, size: usize, nitems: usize, data: ?*anyopaque) callconv(.C) usize {
             const to = (buffer orelse return c.CURL_READFUNC_ABORT)[0 .. size * nitems];
-            var fbs = @ptrCast(
-                *std.io.FixedBufferStream(BufferType),
+            var fbs: *std.io.FixedBufferStream(BufferType) = @ptrCast(
                 @alignCast(
-                    @alignOf(*std.io.FixedBufferStream(BufferType)),
                     data orelse return c.CURL_READFUNC_ABORT,
                 ),
             );
@@ -66,7 +62,7 @@ pub fn readFromFbs(comptime FbsType: type) ReadFn {
 
 pub const Easy = opaque {
     pub fn init() Error!*Easy {
-        return @ptrCast(?*Easy, c.curl_easy_init()) orelse error.FailedInit;
+        return @as(?*Easy, @ptrCast(c.curl_easy_init())) orelse error.FailedInit;
     }
 
     pub fn cleanup(self: *Easy) void {
@@ -134,11 +130,11 @@ pub const Easy = opaque {
     }
 
     pub fn setPostFields(self: *Easy, data: *anyopaque) Error!void {
-        return tryCurl(c.curl_easy_setopt(self, c.CURLOPT_POSTFIELDS, @ptrToInt(data)));
+        return tryCurl(c.curl_easy_setopt(self, c.CURLOPT_POSTFIELDS, @as(c_ulong, data)));
     }
 
     pub fn setPostFieldSize(self: *Easy, size: usize) Error!void {
-        return tryCurl(c.curl_easy_setopt(self, c.CURLOPT_POSTFIELDSIZE, @intCast(c_ulong, size)));
+        return tryCurl(c.curl_easy_setopt(self, c.CURLOPT_POSTFIELDSIZE, @as(c_ulong, @intCast(size)) ));
     }
 
     pub fn perform(self: *Easy) Error!void {
@@ -233,44 +229,44 @@ test "https post" {
 
 pub const Url = opaque {
     pub fn init() UrlError!*Url {
-        return @ptrCast(?*Url, c.curl_url()) orelse error.FailedInit;
+        return @as(?*Url, @ptrCast(c.curl_url())) orelse error.FailedInit;
     }
 
     pub fn cleanup(self: *Url) void {
-        c.curl_url_cleanup(@ptrCast(*c.CURLU, self));
+        c.curl_url_cleanup(@as(*c.CURLU, @ptrCast(self)));
     }
 
     pub fn set(self: *Url, url: [:0]const u8) UrlError!void {
-        return tryCurlUrl(c.curl_url_set(@ptrCast(*c.CURLU, self), c.CURLUPART_URL, url.ptr, 0));
+        return tryCurlUrl(c.curl_url_set(@as(*c.CURLU, @ptrCast(self)), c.CURLUPART_URL, url.ptr, 0));
     }
 
     pub fn getHost(self: *Url) UrlError![*:0]u8 {
         var host: ?[*:0]u8 = undefined;
-        try tryCurlUrl(c.curl_url_get(@ptrCast(*c.CURLU, self), c.CURLUPART_HOST, &host, 0));
+        try tryCurlUrl(c.curl_url_get(@as(*c.CURLU, @ptrCast(self)), c.CURLUPART_HOST, &host, 0));
         return host.?;
     }
 
     pub fn getPath(self: *Url) UrlError![*:0]u8 {
         var path: ?[*:0]u8 = undefined;
-        try tryCurlUrl(c.curl_url_get(@ptrCast(*c.CURLU, self), c.CURLUPART_PATH, &path, 0));
+        try tryCurlUrl(c.curl_url_get(@as(*c.CURLU, @ptrCast(self)), c.CURLUPART_PATH, &path, 0));
         return path.?;
     }
 
     pub fn getScheme(self: *Url) UrlError![*:0]u8 {
         var scheme: ?[*:0]u8 = undefined;
-        try tryCurlUrl(c.curl_url_get(@ptrCast(*c.CURLU, self), c.CURLUPART_SCHEME, &scheme, 0));
+        try tryCurlUrl(c.curl_url_get(@as(*c.CURLU, @ptrCast(self)), c.CURLUPART_SCHEME, &scheme, 0));
         return scheme.?;
     }
 
     pub fn getPort(self: *Url) UrlError![*:0]u8 {
         var port: ?[*:0]u8 = undefined;
-        try tryCurlUrl(c.curl_url_get(@ptrCast(*c.CURLU, self), c.CURLUPART_PORT, &port, 0));
+        try tryCurlUrl(c.curl_url_get(@as(*c.CURLU, @ptrCast(self)), c.CURLUPART_PORT, &port, 0));
         return port.?;
     }
 
     pub fn getQuery(self: *Url) UrlError![*:0]u8 {
         var query: ?[*:0]u8 = undefined;
-        try tryCurlUrl(c.curl_url_get(@ptrCast(*c.CURLU, self), c.CURLUPART_QUERY, &query, 0));
+        try tryCurlUrl(c.curl_url_get(@as(*c.CURLU, @ptrCast(self)), c.CURLUPART_QUERY, &query, 0));
         return query.?;
     }
 

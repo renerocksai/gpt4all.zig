@@ -3,7 +3,7 @@ const download_to_file = @import("download.zig").download_to_file;
 
 pub extern fn cpp_main(argc: c_int, argv: [*][*c]const u8) c_int;
 
-const DEFAULT_MODEL_URL = "https://gpt4all.io/ggml-gpt4all-j.bin";
+const DEFAULT_MODEL_URL = "https://gpt4all.io/models/ggml-gpt4all-j.bin";
 const DEFAULT_MODEL = "ggml-gpt4all-j.bin";
 
 pub fn main() !u8 {
