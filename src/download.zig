@@ -66,9 +66,9 @@ pub fn on_xfer_info(
     _ = ulnow;
     _ = ultotal;
     _ = clientp;
-    const percent: c_ulong = @intCast(c_ulong, @divTrunc(100 * dlnow, dltotal + 1));
-    const dltotal_mb: c_ulong = @intCast(c_ulong, @divTrunc(@divTrunc(dltotal, 1024), 1024));
-    const dlnow_mb: c_ulong = @intCast(c_ulong, @divTrunc(@divTrunc(dlnow, 1024), 1024));
+    const percent: c_ulong = @intCast(@divTrunc(100 * dlnow, dltotal + 1));
+    const dltotal_mb: c_ulong = @intCast(@divTrunc(@divTrunc(dltotal, 1024), 1024));
+    const dlnow_mb: c_ulong = @intCast(@divTrunc(@divTrunc(dlnow, 1024), 1024));
 
     std.debug.print("\rDownloaded: {: >4} MB / {: >4} MB   [{: >3}%]                     ", .{ dlnow_mb, dltotal_mb, percent });
     return 0;
