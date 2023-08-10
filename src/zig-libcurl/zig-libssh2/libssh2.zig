@@ -39,7 +39,7 @@ pub const Library = struct {
     step: *std.build.LibExeObjStep,
 
     pub fn link(self: Library, other: *std.build.LibExeObjStep) void {
-        other.addIncludePath(include_dir);
+        other.addIncludePath(.{ .path = include_dir });
         other.linkLibrary(self.step);
     }
 };
@@ -54,8 +54,8 @@ pub fn create(
         .target = target,
         .optimize = optimize,
     });
-    ret.addIncludePath(include_dir);
-    ret.addIncludePath(config_dir);
+    ret.addIncludePath(.{ .path = include_dir });
+    ret.addIncludePath(.{ .path = config_dir });
     ret.addCSourceFiles(srcs, &.{});
     ret.linkLibC();
 

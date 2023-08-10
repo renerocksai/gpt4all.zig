@@ -35,11 +35,14 @@ pub fn build(b: *std.build.Builder) !void {
     exe.addModule("curl", curl);
 
     // now, here comes the C and C++ stuff for the actual chat client
-    exe.addIncludePath("src/llm");
-    exe.addCSourceFile("src/llm/ggml/ggml.c", &.{
-        "-std=c11",
-        "-D_POSIX_C_SOURCE=200809L", // for clock_gettime()
-        "-pthread",
+    exe.addIncludePath(.{ .path = "src/llm" });
+    exe.addCSourceFile(.{
+        .file = .{ .path = "src/llm/ggml/ggml.c" },
+        .flags = &.{
+            "-std=c11",
+            "-D_POSIX_C_SOURCE=200809L", // for clock_gettime()
+            "-pthread",
+        },
     });
     exe.addCSourceFiles(&.{
         "src/llm/chat.cpp",

@@ -2,7 +2,7 @@
   description = "zap dev shell";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/release-22.11";
+    nixpkgs.url = "github:nixos/nixpkgs/release-23.05";
     flake-utils.url = "github:numtide/flake-utils";
 
     # required for latest zig
@@ -37,8 +37,8 @@
       in rec {
         devShells.default = pkgs.mkShell {
           nativeBuildInputs = with pkgs; [
-            neovim
-            zigpkgs.master
+            # neovim
+            zigpkgs."0.11.0"
           ];
 
           buildInputs = with pkgs; [
