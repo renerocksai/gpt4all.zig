@@ -57,6 +57,25 @@
 
         # For compatibility with older versions of the `nix` binary
         devShell = self.devShells.${system}.default;
+
+        packages.default = packages.gpt4all_zig;
+
+        packages.gpt4all_zig = pkgs.stdenvNoCC.mkDerivation {
+          name = "chat";
+          version = "master";
+          src = ./.;
+          nativeBuildInputs = [ pkgs.zigpkgs."0.11.0" ];
+          dontConfigure = true;
+          dontInstall = true;
+          buildPhase = ''
+            mkdir -p $out
+            mkdir -p .cache/{p,z,tmp}
+            # I disabled -Dcpu=baseline because chat would be too slow with it
+            # So don't cache the outputs of this flake and install on different machines
+            # zig build install --cache-dir $(pwd)/zig-cache --global-cache-dir $(pwd)/.cache -Dcpu=baseline -Doptimize=ReleaseSafe --prefix $out
+            zig build install --cache-dir $(pwd)/zig-cache --global-cache-dir $(pwd)/.cache -Doptimize=ReleaseSafe --prefix $out
+            '';
+        };
       }
     );
 }

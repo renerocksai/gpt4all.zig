@@ -7,7 +7,8 @@ const zlib = @import("src/zig-libcurl/zig-zlib/zlib.zig");
 const libssh2 = @import("src/zig-libcurl/zig-libssh2/libssh2.zig");
 
 pub fn build(b: *std.build.Builder) !void {
-    const target = b.standardTargetOptions(.{});
+    var target = b.standardTargetOptions(.{});
+    target.abi = .musl;
     const optimize = b.standardOptimizeOption(.{});
 
     // thanks to github.com/mattnite !!!
