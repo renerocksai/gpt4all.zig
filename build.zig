@@ -8,7 +8,9 @@ const libssh2 = @import("src/zig-libcurl/zig-libssh2/libssh2.zig");
 
 pub fn build(b: *std.build.Builder) !void {
     var target = b.standardTargetOptions(.{});
-    target.abi = .musl;
+    if (target.isLinux()) {
+        target.abi = .musl;
+    }
     const optimize = b.standardOptimizeOption(.{});
 
     // thanks to github.com/mattnite !!!
